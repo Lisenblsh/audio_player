@@ -10,7 +10,9 @@
         android:id="@+id/background_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:alpha=".5" />
+        android:alpha=".5"
+        tools:src="@drawable/base_song_image"
+        android:scaleType="centerCrop"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -39,7 +41,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                android:src="@drawable/base_song_image" />
+                tools:src="@drawable/base_song_image" />
         </androidx.cardview.widget.CardView>
 
         <TextView
@@ -168,7 +170,7 @@
             android:src="@drawable/music_lyrics" />
 
         <ImageView
-            android:id="@+id/button_random_track"
+            android:id="@+id/button_shuffle"
             style="@style/Theme.Audio_player.Icons_tint"
             android:layout_width="40dp"
             android:layout_height="40dp"
@@ -198,7 +200,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="50dp"
-            app:constraint_referenced_ids="button_random_track,button_lyrics,button_share,button_playlist"
+            app:constraint_referenced_ids="button_shuffle,button_lyrics,button_share,button_playlist"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.505"

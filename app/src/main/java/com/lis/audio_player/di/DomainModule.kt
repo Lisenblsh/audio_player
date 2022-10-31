@@ -14,7 +14,7 @@ val domainModule = module {
         GetMusicInfoFromId(database = get())
     }
 
-    factory<PlayMusicFromUrl> {
-        PlayMusicFromUrl(context = get(), repository = get())
+    factory <PlayMusicFromUrl> {
+        params -> PlayMusicFromUrl(context = get(), repository = get(), exoPlayer = params.get())
     }
 }

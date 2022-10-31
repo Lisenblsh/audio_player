@@ -50,6 +50,9 @@ dependencies {
     //coil
     def coilVer = "2.2.2"
     implementation "io.coil-kt:coil:$coilVer"
+    def coil_transformer_ver = "1.0.6"
+    implementation "jp.wasabeef.transformers:coil:$coil_transformer_ver"
+
     implementation project(':vkAudioToken')
 
     //lyfecycle

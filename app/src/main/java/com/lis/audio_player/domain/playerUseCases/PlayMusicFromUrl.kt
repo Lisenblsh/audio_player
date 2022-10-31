@@ -1,6 +1,7 @@
 package com.lis.audio_player.domain.playerUseCases
 
 import android.content.Context
+import android.content.Intent
 import android.media.session.PlaybackState
 import android.os.Handler
 import android.os.Looper
@@ -14,13 +15,16 @@ import com.lis.audio_player.data.repository.MusicRepositoryImpl
 import com.lis.audio_player.data.room.MusicDB
 import com.lis.audio_player.domain.tools.exoPlayer.DiffAudioData
 import com.lis.audio_player.domain.tools.exoPlayer.currentMediaItems
+import com.lis.audio_player.presentation.service.PlayerService
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class PlayMusicFromUrl(
     context: Context,
-    private val repository: MusicRepositoryImpl
+    private val repository: MusicRepositoryImpl,
+    private val exoPlayer: ExoPlayer
 ) : ViewModel() {
-    private val exoPlayer: ExoPlayer = ExoPlayer.Builder(context).build()
+    //private val exoPlayer: ExoPlayer = ExoPlayer.Builder(context).build()
     private val myHandler = Handler(Looper.getMainLooper())
     private val differ = DiffAudioData(context = viewModelScope.coroutineContext, exoPlayer)
 
@@ -29,17 +33,25 @@ class PlayMusicFromUrl(
     val downloadPosition = MutableLiveData<Long>(0)
     val isPlaying = MutableLiveData<Boolean>(false)
     val repeatMode = MutableLiveData<Int>(exoPlayer.repeatMode)
+    val shuffleMode = MutableLiveData<Boolean>(false)
 
     fun setRepeatMode(repeatMode: Int) {
         exoPlayer.repeatMode = repeatMode
         this.repeatMode.value = repeatMode
     }
 
+    fun setShuffleMode(isShuffle: Boolean){
+        exoPlayer.shuffleModeEnabled = isShuffle
+        shuffleMode.value = isShuffle
+    }
+
     private lateinit var audiosList: ArrayList<MusicDB>
     val musicInfo = MutableLiveData<MusicDB>()
 
+    val isPlaylistAdd = MutableLiveData<Boolean>(false)
 
     init {
+        context.startService(Intent(context.applicationContext, PlayerService::class.java))
         exoPlayer.addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
                 if (playbackState == ExoPlayer.STATE_READY || playbackState == PlaybackState.STATE_FAST_FORWARDING) {
@@ -52,6 +64,7 @@ class PlayMusicFromUrl(
         viewModelScope.launch {
             audiosList = (getMusicList() ?: emptyList()) as ArrayList<MusicDB>
             differ.add(audiosList)
+            isPlaylistAdd.value = true
             exoPlayer.prepare()
         }
     }
@@ -62,7 +75,7 @@ class PlayMusicFromUrl(
             Log.e("mediaId", "${media.mediaId}:$musicId")
             if (media.mediaId == musicId.toString()) {
                 Log.e("mediaId True", "${media.mediaId}:$musicId")
-                exoPlayer.seekTo(i,0)
+                exoPlayer.seekTo(i, 0)
                 break
             }
         }
@@ -71,7 +84,6 @@ class PlayMusicFromUrl(
     fun play() {
         exoPlayer.play()
         isPlaying.value = exoPlayer.isPlaying
-
         myHandler.postDelayed(updateSongTime, 100)
     }
 
@@ -83,19 +95,22 @@ class PlayMusicFromUrl(
 
     fun seekTo(progress: Long) {
         exoPlayer.seekTo(progress)
-        position.postValue(exoPlayer.currentPosition)
+        position.value = exoPlayer.currentPosition
     }
 
     fun nextSong() {
         exoPlayer.seekToNextMediaItem()
-
+        position.value = 0
     }
 
     fun prevSong() {
         exoPlayer.seekToPrevious()
+        if(isPlaying.value==false){
+            position.value = 0
+        }
     }
 
-    fun destroy(){
+    fun destroy() {
         exoPlayer.release()
     }
 

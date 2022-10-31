@@ -1,20 +1,29 @@
 package com.lis.audio_player.presentation
 
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.icu.text.SimpleDateFormat
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Log
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
+import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.Player
 import com.lis.audio_player.R
 import com.lis.audio_player.databinding.ActivityPlayerBinding
 import com.lis.audio_player.domain.playerUseCases.GetMusicInfoFromId
 import com.lis.audio_player.domain.playerUseCases.PlayMusicFromUrl
 import com.lis.audio_player.domain.tools.Coil
+import com.lis.audio_player.presentation.service.PlayerService
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
+import org.koin.core.parameter.parametersOf
 import java.text.MessageFormat
 import java.text.ParseException
 import java.util.*
@@ -24,21 +33,42 @@ class PlayerActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityPlayerBinding
 
-    private val playMusicFromUrl: PlayMusicFromUrl by inject()
+    private val playMusicFromUrl: PlayMusicFromUrl by inject{ parametersOf(exoPlayer)}
 
     private var musicId: Long = -1
 
+    private lateinit var exoPlayer: ExoPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        bindToService()
 
-        binding.bindElements()
+    }
 
-        lifecycleScope.launch {
-            getIntentMethod()
+    var isBound = false
+
+    private fun bindToService() {
+        val playerServiceIntent = Intent(this@PlayerActivity, PlayerService::class.java)
+        bindService(playerServiceIntent, playerServiceConnection, Context.BIND_AUTO_CREATE)
+    }
+
+    private val playerServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val binder = service as PlayerService.ServiceBinder
+            exoPlayer = binder.playerService.exoPlayer
+            isBound = true
+
+            binding.bindElements()
+            lifecycleScope.launch {
+                getIntentMethod()
+            }
         }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+        }
+
     }
 
     private fun getIntentMethod() {
@@ -46,46 +76,85 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun ActivityPlayerBinding.bindElements() {
+        val coil = Coil()
         playMusicFromUrl.musicInfo.observe(this@PlayerActivity) { music ->
-            Coil().setImage(music.photo1200, songImage)
+            coil.setImage(music.photo1200, songImage)
+            coil.setImageOnBackground(music.photo1200, backgroundImage)
             songName.isSelected = true
             songName.text = music.title
             songAuthor.text = music.artist
 
         }
 
-        lifecycleScope.launch {
-            TODO(
-                "надо чтото делать с сингтоном наверное для этой активити" +
-                        "надо убрать этот делей"
-            )
-            delay(2000)
-            playMusicFromUrl.setupMusicFromId(musicId)
+        playMusicFromUrl.duration.observe(this@PlayerActivity) { songDuration: Long ->
+            songProgress.max = songDuration.toInt()
+            this.songDuration.text = getStringSongDuration(songDuration)
+        }
+        playMusicFromUrl.position.observe(this@PlayerActivity) { position: Long ->
+            songPosition.text = getStringSongDuration(position)
+            songProgress.progress = position.toInt()
+        } //установка текущей позиции
+        playMusicFromUrl.downloadPosition.observe(this@PlayerActivity) { downloadPosition: Long ->
+            songProgress.secondaryProgress = downloadPosition.toInt()
         }
 
+        playMusicFromUrl.isPlaylistAdd.observe(this@PlayerActivity) {
+            if (it) {
+                lifecycleScope.launch {
+                    playMusicFromUrl.setupMusicFromId(musicId)
+                }
+            }
+        }
+
+        playMusicFromUrl.repeatMode.observe(this@PlayerActivity) { repeatMode: Int ->
+            when (repeatMode) {
+                Player.REPEAT_MODE_OFF -> coil.setImage(
+                    R.drawable.repeate_mode_one,
+                    buttonLoop
+                )
+                Player.REPEAT_MODE_ONE -> coil.setImage(
+                    R.drawable.repeate_mode_all,
+                    buttonLoop
+                )
+                Player.REPEAT_MODE_ALL -> coil.setImage(
+                    R.drawable.repeat_mode_off,
+                    buttonLoop
+                )
+            }
+        } // установка иконки зацикливания
+
         playMusicFromUrl.isPlaying.observe(this@PlayerActivity) { isPlaying: Boolean ->
-            Coil().setImage(
+            coil.setImage(
                 if (isPlaying) R.drawable.pause else R.drawable.play,
                 buttonPlayPause
             )
         } //установка иконки play\pause кнопки
 
+        playMusicFromUrl.shuffleMode.observe(this@PlayerActivity) { isShuffled ->
+            if (isShuffled) {
+                buttonShuffle.alpha = 1f
+            } else {
+                buttonShuffle.alpha = 0.5f
+            }
+        }
+
         buttonPlayPause.setOnClickListener { startClickListener() }
         buttonNext.setOnClickListener { nextClickListener() }
         buttonPrevious.setOnClickListener { prevClickListener() }
+        buttonLoop.setOnClickListener { loopClickListener() }
+        buttonShuffle.setOnClickListener { shuffleClickListener() }
 
         songProgress.setOnSeekBarChangeListener(seekBarSelectProgressListener())
 
     }
 
     private fun startClickListener() {
-        var isPlaying = playMusicFromUrl.isPlaying.value ?: false
+        val isPlaying = playMusicFromUrl.isPlaying.value == true
         if (isPlaying) {
             playMusicFromUrl.pause()
         } else {
             playMusicFromUrl.play()
         }
-        isPlaying = playMusicFromUrl.isPlaying.value ?: false
     }
 
     private fun nextClickListener() {
@@ -96,6 +165,17 @@ class PlayerActivity : AppCompatActivity() {
         playMusicFromUrl.prevSong()
     }
 
+    private var repeatMode = Player.REPEAT_MODE_OFF
+
+    private fun loopClickListener() {
+        when (repeatMode) {
+            Player.REPEAT_MODE_OFF -> repeatMode = Player.REPEAT_MODE_ONE
+            Player.REPEAT_MODE_ONE -> repeatMode = Player.REPEAT_MODE_ALL
+            Player.REPEAT_MODE_ALL -> repeatMode = Player.REPEAT_MODE_OFF
+        }
+        playMusicFromUrl.setRepeatMode(repeatMode)
+    }
+
     private fun seekBarSelectProgressListener(): SeekBar.OnSeekBarChangeListener {
         return object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {}
@@ -104,6 +184,11 @@ class PlayerActivity : AppCompatActivity() {
                 playMusicFromUrl.seekTo(seekBar.progress.toLong())
             }
         }
+    }
+
+    private fun shuffleClickListener() {
+        val isShuffle = playMusicFromUrl.shuffleMode.value == true
+        playMusicFromUrl.setShuffleMode(!isShuffle)
     }
 
     private fun getStringSongDuration(songDuration: Long): String {
@@ -135,7 +220,14 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        playMusicFromUrl.destroy()
         super.onDestroy()
+        doUnbindService()
+    }
+
+    private fun doUnbindService() {
+        if (isBound) {
+            unbindService(playerServiceConnection)
+            isBound = false
+        }
     }
 }
