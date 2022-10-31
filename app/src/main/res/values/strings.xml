@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">player_java</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="authorization_info" translatable="false">authorization_info</string>
+    <string name="token_key" translatable="false">TOKEN_KEY</string>
+    <string name="user_agent" translatable="false">USER_AGENT</string>
+    <string name="error" translatable="false">ERROR</string>
+    <string name="login_hint">Login (phone number)</string>
+    <string name="password_hint">Password</string>
+    <string name="get_token_hint">Get token</string>
+    <string name="code_from_sms_hint">Code from sms</string>
+    <string name="text_from_picture_hint">Text from picture</string>
+    <string name="sms_sent">A sms was sent with a confirmation code</string>
+    <string name="two_fa_error">Two-factor authentication error, try again</string>
+    <string name="request_error">Request error, try again</string>
+    <string name="token_not_sent">The token was not sent</string>
+</resources>
