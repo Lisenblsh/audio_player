@@ -1,4 +1,4 @@
-package com.lis.audio_player.presentation.adapters
+package com.lis.audio_player.domain.adapters
 
 import android.view.LayoutInflater
 import android.view.View

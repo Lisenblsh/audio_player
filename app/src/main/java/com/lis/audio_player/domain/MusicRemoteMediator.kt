@@ -12,8 +12,6 @@ import com.lis.audio_player.domain.tools.convertToMusicDB
 import okio.IOException
 import retrofit2.HttpException
 
-private const val STARTING_PAGE_INDEX = 1
-
 @OptIn(ExperimentalPagingApi::class)
 class MusicRemoteMediator(
     private val repository: MusicRepositoryImpl,
@@ -51,7 +49,7 @@ class MusicRemoteMediator(
             database.withTransaction {
                 if (loadType == LoadType.REFRESH) {
                     database.musicDao().deleteMusic()
-                    database.musicDao().clearRemoteKeysTable()
+                    database.musicDao().clearRemoteMusicKeysTable()
                 }
 
                 val prevKey = if (page == STARTING_PAGE_INDEX) null else page - 1
@@ -64,13 +62,13 @@ class MusicRemoteMediator(
                     val keys =
                         database.musicDao().getMusicList().takeLast(pageSize).map {
                             Log.e("remoteKey Ids", "ids: ${it.id}")
-                            RemoteKeys(
-                                it.id,
+                            RemoteMusicKeys(
+                                it.musicId,
                                 prevKey,
                                 nextKey
                             )
                         }
-                    database.musicDao().insertAllKeys(keys)
+                    database.musicDao().insertAllMusicKeys(keys)
                 }
             }
             return MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
@@ -96,18 +94,22 @@ class MusicRemoteMediator(
         return Pair(musicList, endOfPaginationReached)
     }
 
-    private suspend fun getRemoteKeysClosestToCurrentPosition(state: PagingState<Int, MusicDB>): RemoteKeys? {
+    private suspend fun getRemoteKeysClosestToCurrentPosition(state: PagingState<Int, MusicDB>): RemoteMusicKeys? {
         return state.anchorPosition?.let { position ->
             state.closestItemToPosition(position)?.id?.let { musicId ->
-                database.musicDao().getRemoteKey(musicId)
+                database.musicDao().getRemoteMusicKey(musicId)
             }
         }
     }
 
-    private suspend fun getRemoteKeysForLastItem(state: PagingState<Int, MusicDB>): RemoteKeys? {
+    private suspend fun getRemoteKeysForLastItem(state: PagingState<Int, MusicDB>): RemoteMusicKeys? {
         return state.pages.lastOrNull { it.data.isNotEmpty() }?.data?.lastOrNull()?.let { repo ->
-            database.musicDao().getRemoteKey(repo.id)
+            database.musicDao().getRemoteMusicKey(repo.musicId)
         }
+    }
+
+    companion object {
+        private const val STARTING_PAGE_INDEX = 1
     }
 
 }

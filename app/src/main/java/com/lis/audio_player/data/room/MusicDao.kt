@@ -9,9 +9,16 @@ interface MusicDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAlbum(albumDB: AlbumDB)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE, entity = AlbumDB::class)
+    suspend fun insertAlbumList(albums: List<AlbumDB>)
+
     @Query("SELECT * FROM AlbumDB")
     @Transaction
-    suspend fun getAlbums(): AlbumDB?
+    suspend fun getAlbumList(): List<AlbumDB>
+
+    @Query("SELECT * FROM AlbumDB")
+    @Transaction
+    fun getPagingAlbumList(): PagingSource<Int, AlbumDB>
 
     @Transaction
     @Query("SELECT * FROM AlbumDB WHERE id = :id")
@@ -20,6 +27,10 @@ interface MusicDao {
     @Transaction
     @Query("DELETE FROM AlbumDB WHERE id = :id")
     fun deleteAlbumById(id: Long)
+
+    @Transaction
+    @Query("DELETE FROM AlbumDB")
+    fun deleteAlbum()
 
     //MusicDB
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -64,15 +75,28 @@ interface MusicDao {
     @Query("DELETE FROM ArtistDB WHERE id = :id")
     fun deleteArtistById(id: String)
 
-    //RemoteKeys
+    //RemoteMusicKeys
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAllKeys(remoteKeys: List<RemoteKeys>)
+    suspend fun insertAllMusicKeys(remoteMusicKeys: List<RemoteMusicKeys>)
 
     @Transaction
-    @Query("SELECT * FROM RemoteKeys WHERE musicId = :musicId")
-    suspend fun getRemoteKey(musicId: Long): RemoteKeys?
+    @Query("SELECT * FROM RemoteMusicKeys WHERE musicId = :musicId")
+    suspend fun getRemoteMusicKey(musicId: Long): RemoteMusicKeys?
 
     @Transaction
-    @Query("DELETE FROM ArtistDB")
-    fun clearRemoteKeysTable()
+    @Query("DELETE FROM RemoteMusicKeys")
+    fun clearRemoteMusicKeysTable()
+
+    //RemoteAlbumKeys
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllAlbumKeys(remoteAlbumKeys: List<RemoteAlbumKeys>)
+
+    @Transaction
+    @Query("SELECT * FROM RemoteAlbumKeys WHERE albumId = :albumId")
+    suspend fun getRemoteAlbumKey(albumId: Long): RemoteAlbumKeys?
+
+    @Transaction
+    @Query("DELETE FROM RemoteAlbumKeys")
+    fun clearRemoteAlbumKeysTable()
+
 }

@@ -2,6 +2,7 @@ package com.lis.audio_player.data.network.retrofit
 
 import com.lis.audio_player.domain.models.VkMusic
 import com.lis.audio_player.data.network.Filters
+import com.lis.audio_player.domain.models.VkAlbum
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -152,7 +153,7 @@ interface RetrofitService {
         @Query("extended") extended: Int?,
         @Query("fields") fields: String?,
         @Query("filters") filters: Filters?
-    ): Response<String>
+    ): Response<VkAlbum>
 
     //audio.getPopular
     @GET("audio.getPopular?v=5.95")

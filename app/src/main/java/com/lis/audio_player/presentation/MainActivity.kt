@@ -7,7 +7,7 @@ import android.os.Bundle
 import com.google.android.material.tabs.TabLayoutMediator
 import com.lis.audio_player.R
 import com.lis.audio_player.databinding.ActivityMainBinding
-import com.lis.audio_player.presentation.adapters.ViewPagerAdapter
+import com.lis.audio_player.domain.adapters.ViewPagerAdapter
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding

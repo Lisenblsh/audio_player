@@ -1,4 +1,4 @@
-package com.lis.audio_player.presentation.adapters
+package com.lis.audio_player.domain.adapters
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager

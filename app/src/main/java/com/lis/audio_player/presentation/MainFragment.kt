@@ -2,18 +2,18 @@ package com.lis.audio_player.presentation
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.viewModels
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.lis.audio_player.R
 import com.lis.audio_player.databinding.FragmentMainBinding
-import com.lis.audio_player.presentation.adapters.MusicPagingAdapter
+import com.lis.audio_player.domain.adapters.AlbumPagingAdapter
+import com.lis.audio_player.domain.adapters.MusicPagingAdapter
+import com.lis.audio_player.presentation.viewModels.AlbumListViewModel
 import com.lis.audio_player.presentation.viewModels.MusicListViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -26,9 +26,11 @@ class MainFragment : Fragment() {
 
     private lateinit var binding: FragmentMainBinding
 
-    private val viewModel by viewModel<MusicListViewModel>()
+    private val musicViewModel by viewModel<MusicListViewModel>()
+    private val albumViewModel by viewModel<AlbumListViewModel>()
 
     private val musicAdapter = MusicPagingAdapter()
+    private val albumAdapter = AlbumPagingAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +43,7 @@ class MainFragment : Fragment() {
         // Inflate the layout for this fragment
         binding = FragmentMainBinding.inflate(layoutInflater, container, false)
         binding.viewMusicList()
+        binding.viewAlbumList()
         return binding.root
     }
 
@@ -61,7 +64,23 @@ class MainFragment : Fragment() {
         musicList.layoutManager = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
 
         lifecycleScope.launch {
-            viewModel.pagingMusicList.collectLatest(musicAdapter::submitData)
+            musicViewModel.pagingMusicList.collectLatest(musicAdapter::submitData)
+        }
+    }
+
+    private fun FragmentMainBinding.viewAlbumList(){
+        albumAdapter.setOnClickListener(object : AlbumPagingAdapter.OnClickListener {
+            override fun onItemClick(id: Long) {
+                Toast.makeText(requireContext(), id.toString(), Toast.LENGTH_SHORT).show()
+            }
+
+        })
+
+        albumList.adapter = albumAdapter
+        albumList.layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
+
+        lifecycleScope.launch {
+            albumViewModel.pagingAlbumList.collectLatest(albumAdapter::submitData)
         }
     }
 }

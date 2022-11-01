@@ -1,4 +1,4 @@
-package com.lis.audio_player.presentation.adapters
+package com.lis.audio_player.domain.adapters
 
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.lis.audio_player.R
 import com.lis.audio_player.data.room.AlbumDB
+import com.lis.audio_player.domain.tools.ImageLoader
 
 class AlbumPagingAdapter: PagingDataAdapter<AlbumDB, RecyclerView.ViewHolder>(ALBUM_COMPARISON) {
 
@@ -40,8 +41,25 @@ class AlbumPagingAdapter: PagingDataAdapter<AlbumDB, RecyclerView.ViewHolder>(AL
         private val title = itemView.findViewById<TextView>(R.id.album_title)
         private val albumAuthor = itemView.findViewById<TextView>(R.id.album_author)
 
-        fun bind(album: AlbumDB?) {
+        private var album: AlbumDB? = null
 
+        fun bind(album: AlbumDB?) {
+            if(album == null){
+
+            } else {
+                showRepoData(album)
+            }
+        }
+
+        private fun showRepoData(album: AlbumDB) {
+            this.album = album
+
+            title.text = album.title
+            ImageLoader().setImage(album.photo600.ifBlank{R.drawable.base_song_image}, image)
+            itemView.setOnClickListener{
+                val id = album.albumId
+                clickListener.onItemClick(id)
+            }
         }
 
     }
