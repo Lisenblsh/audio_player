@@ -8,20 +8,23 @@ import android.graphics.Bitmap
 import android.os.Binder
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat.IMPORTANCE_HIGH
+import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
+import com.google.android.exoplayer2.util.NotificationUtil.IMPORTANCE_DEFAULT
 import com.lis.audio_player.R
+import com.lis.audio_player.domain.tools.ImageLoader
 import com.lis.audio_player.presentation.PlayerActivity
-import org.koin.androidx.viewmodel.scope.emptyState
+
 
 class PlayerService : Service() {
 
-    val serviceBinder: IBinder = ServiceBinder()
+    private val serviceBinder: IBinder = ServiceBinder()
 
     lateinit var exoPlayer: ExoPlayer
-    lateinit var playerNotificationManager: PlayerNotificationManager
+    private lateinit var playerNotificationManager: PlayerNotificationManager
 
     inner class ServiceBinder : Binder() {
         val playerService: PlayerService
@@ -38,10 +41,17 @@ class PlayerService : Service() {
         exoPlayer = ExoPlayer.Builder(applicationContext).build()
         val channelId = resources.getString(R.string.app_name) + " Music Channel "
         val notificationId = 1111111
+
+        val audioAttributes: AudioAttributes = AudioAttributes.Builder()
+            .setUsage(C.USAGE_MEDIA)
+            .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
+            .build()
+        exoPlayer.setAudioAttributes(audioAttributes, true)
+
         playerNotificationManager = PlayerNotificationManager.Builder(this, notificationId, channelId)
             .setNotificationListener(notificationListener)
             .setMediaDescriptionAdapter(descriptionAdapter)
-            .setChannelImportance(IMPORTANCE_HIGH)
+            .setChannelImportance(IMPORTANCE_DEFAULT)
             .setSmallIconResourceId(R.drawable.play)
             .setChannelDescriptionResourceId(R.string.app_name)
             .setNextActionIconResourceId(R.drawable.next)
@@ -52,6 +62,7 @@ class PlayerService : Service() {
             .setChannelNameResourceId(R.string.app_name)
             .build()
 
+        playerNotificationManager.setColorized(true)
         playerNotificationManager.setPlayer(exoPlayer)
         playerNotificationManager.setPriority(NotificationCompat.PRIORITY_MAX)
         playerNotificationManager.setUseStopAction(true)
@@ -89,7 +100,7 @@ class PlayerService : Service() {
 
     private val descriptionAdapter: PlayerNotificationManager.MediaDescriptionAdapter = object: PlayerNotificationManager.MediaDescriptionAdapter {
         override fun getCurrentContentTitle(player: Player): CharSequence {
-            return  exoPlayer.currentMediaItem?.mediaMetadata?.title ?: ""
+            return  player.mediaMetadata.title ?: "no title"
         }
 
         override fun createCurrentContentIntent(player: Player): PendingIntent? {
@@ -99,13 +110,14 @@ class PlayerService : Service() {
         }
 
         override fun getCurrentContentText(player: Player): CharSequence? {
-            return null
+            return  player.mediaMetadata.artist
         }
 
         override fun getCurrentLargeIcon(
             player: Player,
             callback: PlayerNotificationManager.BitmapCallback
         ): Bitmap? {
+            ImageLoader().setLargeIconToNotification(player.mediaMetadata.artworkUri,callback, applicationContext)
             return null
         }
 

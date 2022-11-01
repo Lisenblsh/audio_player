@@ -9,7 +9,7 @@ import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.lis.audio_player.R
 import com.lis.audio_player.databinding.ActivityAuthorizationBinding
-import com.lis.audio_player.domain.tools.Coil
+import com.lis.audio_player.domain.tools.ImageLoader
 import com.lis.vkaudiotoken.TokenException
 import com.lis.vkaudiotoken.TokenExceptionType
 import com.lis.vkaudiotoken.VkAudioToken
@@ -82,7 +82,7 @@ class AuthorizationActivity : AppCompatActivity() {
                     captchaSid = e.captchaSid
                     errorMessage.text = e.message
                     errorMessage.visibility = View.VISIBLE
-                    Coil().setImage(e.captchaImg,captchaImage)
+                    ImageLoader().setImage(e.captchaImg,captchaImage)
                     captchaLayout.visibility = View.VISIBLE
                 }
                 TokenExceptionType.TOKEN_NOT_RECEIVED -> {

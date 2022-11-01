@@ -39,6 +39,7 @@ android {
 }
 
 dependencies {
+    implementation project(':vkAudioToken')
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.5.0'
@@ -47,13 +48,15 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
-    //coil
-    def coilVer = "2.2.2"
-    implementation "io.coil-kt:coil:$coilVer"
-    def coil_transformer_ver = "1.0.6"
-    implementation "jp.wasabeef.transformers:coil:$coil_transformer_ver"
 
-    implementation project(':vkAudioToken')
+
+    //glide
+    def glide_ver = "4.14.2"
+    implementation "com.github.bumptech.glide:glide:$glide_ver"
+    ksp "com.github.bumptech.glide:ksp:$glide_ver"
+    def glide_transformer_ver = "4.3.0"
+    implementation "jp.wasabeef:glide-transformations:$glide_transformer_ver"
+
 
     //lyfecycle
     def lifecycleVer = "2.5.1"

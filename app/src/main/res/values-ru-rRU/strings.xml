@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">player_java</string>
+    <string name="app_name">audio_player</string>
     <string name="login_hint">Логин (номер телефона)</string>
     <string name="password_hint">Пароль</string>
     <string name="get_token_hint">Получить токен</string>

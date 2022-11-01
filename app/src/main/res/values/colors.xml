@@ -5,4 +5,5 @@
     <color name="transparent">#00000000</color>
     <color name="grey_progress_light">#5B000000</color>
     <color name="grey_progress_night">#28000000</color>
+    <color name="base_color">#FFAE7A</color>
 </resources>

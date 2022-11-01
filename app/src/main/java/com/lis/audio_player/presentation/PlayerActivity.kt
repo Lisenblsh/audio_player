@@ -8,19 +8,15 @@ import android.icu.text.SimpleDateFormat
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
-import android.util.Log
 import android.widget.SeekBar
-import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.lis.audio_player.R
 import com.lis.audio_player.databinding.ActivityPlayerBinding
-import com.lis.audio_player.domain.playerUseCases.GetMusicInfoFromId
 import com.lis.audio_player.domain.playerUseCases.PlayMusicFromUrl
-import com.lis.audio_player.domain.tools.Coil
+import com.lis.audio_player.domain.tools.ImageLoader
 import com.lis.audio_player.presentation.service.PlayerService
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
@@ -76,10 +72,10 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun ActivityPlayerBinding.bindElements() {
-        val coil = Coil()
+        val imageLoader = ImageLoader()
         playMusicFromUrl.musicInfo.observe(this@PlayerActivity) { music ->
-            coil.setImage(music.photo1200, songImage)
-            coil.setImageOnBackground(music.photo1200, backgroundImage)
+            imageLoader.setImage(music.photo1200, songImage)
+            imageLoader.setImageOnBackground(music.photo1200, backgroundImage)
             songName.isSelected = true
             songName.text = music.title
             songAuthor.text = music.artist
@@ -108,15 +104,15 @@ class PlayerActivity : AppCompatActivity() {
 
         playMusicFromUrl.repeatMode.observe(this@PlayerActivity) { repeatMode: Int ->
             when (repeatMode) {
-                Player.REPEAT_MODE_OFF -> coil.setImage(
+                Player.REPEAT_MODE_OFF -> imageLoader.setImage(
                     R.drawable.repeate_mode_one,
                     buttonLoop
                 )
-                Player.REPEAT_MODE_ONE -> coil.setImage(
+                Player.REPEAT_MODE_ONE -> imageLoader.setImage(
                     R.drawable.repeate_mode_all,
                     buttonLoop
                 )
-                Player.REPEAT_MODE_ALL -> coil.setImage(
+                Player.REPEAT_MODE_ALL -> imageLoader.setImage(
                     R.drawable.repeat_mode_off,
                     buttonLoop
                 )
@@ -124,7 +120,7 @@ class PlayerActivity : AppCompatActivity() {
         } // установка иконки зацикливания
 
         playMusicFromUrl.isPlaying.observe(this@PlayerActivity) { isPlaying: Boolean ->
-            coil.setImage(
+            imageLoader.setImage(
                 if (isPlaying) R.drawable.pause else R.drawable.play,
                 buttonPlayPause
             )

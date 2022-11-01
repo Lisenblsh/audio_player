@@ -1,5 +1,6 @@
 <resources>
-    <string name="app_name">player_java</string>
+    <string name="app_name">audio_player</string>
+    <string name="app_name_show" translatable="false">Lis Music</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="authorization_info" translatable="false">authorization_info</string>
     <string name="token_key" translatable="false">TOKEN_KEY</string>

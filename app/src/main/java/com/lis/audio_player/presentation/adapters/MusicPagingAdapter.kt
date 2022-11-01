@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.lis.audio_player.R
 import com.lis.audio_player.data.room.MusicDB
-import com.lis.audio_player.domain.tools.Coil
+import com.lis.audio_player.domain.tools.ImageLoader
 
 class MusicPagingAdapter : PagingDataAdapter<MusicDB, RecyclerView.ViewHolder>(MUSIC_COMPARISON) {
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -61,7 +61,7 @@ class MusicPagingAdapter : PagingDataAdapter<MusicDB, RecyclerView.ViewHolder>(M
 
             title.text = music.title
             artistName.text = music.artist
-            Coil().setImage(music.photo300.ifBlank { R.drawable.base_song_image },image)
+            ImageLoader().setImage(music.photo300.ifBlank { R.drawable.base_song_image },image)
             itemView.setOnClickListener {
                 val id = music.musicId
                 clickListener.onItemClick(id)
@@ -77,7 +77,7 @@ class MusicPagingAdapter : PagingDataAdapter<MusicDB, RecyclerView.ViewHolder>(M
     companion object {
         private val MUSIC_COMPARISON = object : DiffUtil.ItemCallback<MusicDB>() {
             override fun areItemsTheSame(oldItem: MusicDB, newItem: MusicDB): Boolean {
-                return oldItem.id == newItem.id
+                return oldItem.musicId == newItem.musicId
             }
 
             override fun areContentsTheSame(oldItem: MusicDB, newItem: MusicDB): Boolean {
