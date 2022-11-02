@@ -21,15 +21,16 @@ internal class TokenReceiverOfficial(
         code: String? = null,
         captchaSid: String? = null,
         captchaKey: String? = null
-    ): Pair<String,String> {
-        return Pair(getNonRefreshed(code, captchaSid, captchaKey), VK_OFFICIAL.userAgent)
+    ): Triple<String, Long,String> {
+        val nonRefreshed = getNonRefreshed(code, captchaSid, captchaKey)
+        return Triple(nonRefreshed.first,nonRefreshed.second, VK_OFFICIAL.userAgent)
     }
 
     private suspend fun getNonRefreshed(
         code: String? = null,
         captchaSid: String? = null,
         captchaKey: String? = null
-    ): String {
+    ): Pair<String,Long> {
         val deviceID = generateRandomString()
 
         val retrofitService = RetrofitService.create(VK_OFFICIAL.userAgent, "https://oauth.vk.com/")
@@ -50,10 +51,10 @@ internal class TokenReceiverOfficial(
         return checkResponse(response)
     }
 
-    private suspend fun checkResponse(response: Response<String>): String {
+    private suspend fun checkResponse(response: Response<String>): Pair<String,Long> {
         if (response.isSuccessful) {
             val body: TokenModel = Gson().fromJson(response.body(), TokenModel::class.java)
-            return body.accessToken
+            return Pair(body.accessToken,body.userId)
         } else if (response.code() == 401) {
             val errorBody: TokenErrorModel? =
                 Gson().fromJson(response.errorBody()?.charStream(), TokenErrorModel::class.java)

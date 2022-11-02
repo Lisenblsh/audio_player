@@ -1,20 +1,20 @@
-package com.lis.audio_player.domain.models
+package com.lis.audio_player.domain.networkModels
 
 import com.google.gson.annotations.SerializedName
 
 data class VkMusic (
     @SerializedName("response")
-    val response: Response
+    val musicResponse: MusicResponse
 )
 
-data class Response (
+data class MusicResponse (
     @SerializedName("count")
     val count: Long,
     @SerializedName("items")
-    val items: List<Item>
+    val musicItems: List<MusicItem>
 )
 
-data class Item(
+data class MusicItem(
     @SerializedName("artist")
     val artist: String,
     @SerializedName("id")
@@ -44,9 +44,9 @@ data class Item(
     @SerializedName("album")
     val album: Album?,
     @SerializedName("main_artists")
-    val mainArtists: List<Artist>,
+    val mainArtists: List<Artist>?,
     @SerializedName("featured_artists")
-    val featuredArtists: List<Artist>,
+    val featuredArtists: List<Artist>?,
     @SerializedName("short_videos_allowed")
     val shortVideosAllowed: Boolean = false,
     @SerializedName("stories_allowed")

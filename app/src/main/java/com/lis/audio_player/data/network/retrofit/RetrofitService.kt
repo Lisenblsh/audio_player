@@ -1,8 +1,8 @@
 package com.lis.audio_player.data.network.retrofit
 
-import com.lis.audio_player.domain.models.VkMusic
+import com.lis.audio_player.domain.networkModels.VkMusic
 import com.lis.audio_player.data.network.Filters
-import com.lis.audio_player.domain.models.VkAlbum
+import com.lis.audio_player.domain.networkModels.VkAlbum
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -231,6 +231,15 @@ interface RetrofitService {
         @Query("offset") offset: Int?,
         @Query("filters") filters: String?,
     ): Response<String>
+
+    //friends.get
+    @GET("friends.get?order=hints&fields=photo_100&v=5.131")
+    suspend fun getFriends(
+        @Query("access_token") accessToken: String,
+        @Query("user_id") user_id: Long?,
+        @Query("count") count: Int?,
+        @Query("offset") offset: Int?,
+    ):Response<String>
 
     companion object {
         private const val BASE_URL = "https://api.vk.com/method/"

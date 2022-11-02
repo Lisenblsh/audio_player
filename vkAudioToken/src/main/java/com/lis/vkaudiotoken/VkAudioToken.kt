@@ -5,7 +5,7 @@ class VkAudioToken(private val login: String, private val password: String) {
         code: String? = null,
         captchaSid: String? = null,
         captchaKey: String? = null
-    ): Pair<String,String> {
+    ): Triple<String, Long,String>  {
         val receiverOfficial = TokenReceiverOfficial(login, password)
         return receiverOfficial.getToken(code, captchaSid, captchaKey)
     }

@@ -1,4 +1,4 @@
-package com.lis.audio_player.domain.models
+package com.lis.audio_player.domain.networkModels
 
 import com.google.gson.annotations.SerializedName
 
@@ -86,7 +86,7 @@ data class MainArtist(
     @SerializedName("name")
     val name: String,
     @SerializedName("domain")
-    val domain: String,
+    val domain: String?,
     @SerializedName("id")
-    val id: String
+    val id: String?
 )

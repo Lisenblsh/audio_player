@@ -23,6 +23,7 @@ class AuthorizationActivity : AppCompatActivity() {
         binding.bindElement()
         setContentView(binding.root)
     }
+
     private fun ActivityAuthorizationBinding.bindElement() {
         getTokenButton.setOnClickListener {
             lifecycleScope.launch {
@@ -39,21 +40,26 @@ class AuthorizationActivity : AppCompatActivity() {
         }
         val password = passwordEditText.text.toString().ifEmpty {
             showToast(resources.getString(R.string.password_hint))
-            return }
+            return
+        }
         val code = codeEditText.text.toString()
-            .ifEmpty { if (codeEditText.visibility == View.GONE) null else {
-                showToast("code")
-                return
-            } }
+            .ifEmpty {
+                if (codeEditText.visibility == View.GONE) null else {
+                    showToast("code")
+                    return
+                }
+            }
         val captchaKey = captchaEditText.text.toString()
-            .ifEmpty { if (captchaLayout.visibility == View.GONE) null else {
-                showToast("captcha")
-                return
-            } }
-        val tokenReceiver =VkAudioToken(login, password)
+            .ifEmpty {
+                if (captchaLayout.visibility == View.GONE) null else {
+                    showToast("captcha")
+                    return
+                }
+            }
+        val tokenReceiver = VkAudioToken(login, password)
         try {
             val token = tokenReceiver.getToken(code, captchaSid, captchaKey)
-            saveAuthInfo(token.first, token.second)
+            saveAuthInfo(token.first, token.second, token.third)
             val intent = Intent(this@AuthorizationActivity, MainActivity::class.java)
             startActivity(intent)
             finish()
@@ -82,7 +88,7 @@ class AuthorizationActivity : AppCompatActivity() {
                     captchaSid = e.captchaSid
                     errorMessage.text = e.message
                     errorMessage.visibility = View.VISIBLE
-                    ImageLoader().setImage(e.captchaImg,captchaImage)
+                    ImageLoader().setImage(e.captchaImg, captchaImage)
                     captchaLayout.visibility = View.VISIBLE
                 }
                 TokenExceptionType.TOKEN_NOT_RECEIVED -> {
@@ -104,12 +110,14 @@ class AuthorizationActivity : AppCompatActivity() {
         captchaLayout.visibility = View.GONE
     }
 
-    private fun saveAuthInfo(token: String, userAgent: String) {
-        val preferences = getSharedPreferences(getString(R.string.authorization_info), Context.MODE_PRIVATE)
+    private fun saveAuthInfo(token: String, userId: Long, userAgent: String) {
+        val preferences =
+            getSharedPreferences(getString(R.string.authorization_info), Context.MODE_PRIVATE)
 
         if (preferences != null) {
             with(preferences.edit()) {
                 putString(getString(R.string.token_key), token)
+                putLong(getString(R.string.user_id), userId)
                 putString(getString(R.string.user_agent), userAgent)
                 apply()
             }

@@ -10,9 +10,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.lis.audio_player.R
 import com.lis.audio_player.data.room.MusicDB
+import com.lis.audio_player.domain.baseModels.AudioModel
 import com.lis.audio_player.domain.tools.ImageLoader
 
-class MusicPagingAdapter : PagingDataAdapter<MusicDB, RecyclerView.ViewHolder>(MUSIC_COMPARISON) {
+class MusicPagingAdapter : PagingDataAdapter<AudioModel, RecyclerView.ViewHolder>(MUSIC_COMPARISON) {
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val music = getItem(position)
         (holder as MusicViewHolder).bind(music)
@@ -42,13 +43,13 @@ class MusicPagingAdapter : PagingDataAdapter<MusicDB, RecyclerView.ViewHolder>(M
         private val artistName = itemView.findViewById<TextView>(R.id.artist_name)
         private val menu = itemView.findViewById<ImageView>(R.id.music_menu)
 
-        private var music: MusicDB? = null
+        private var music: AudioModel? = null
 
         init {
 
         }
 
-        fun bind(music: MusicDB?) {
+        fun bind(music: AudioModel?) {
             if(music == null){
                 //TODO("Сюда можно вставить плэйс холдеры при загрузке")
             } else {
@@ -56,7 +57,7 @@ class MusicPagingAdapter : PagingDataAdapter<MusicDB, RecyclerView.ViewHolder>(M
             }
         }
 
-        private fun showRepoData(music: MusicDB) {
+        private fun showRepoData(music: AudioModel) {
             this.music = music
 
             title.text = music.title
@@ -75,12 +76,12 @@ class MusicPagingAdapter : PagingDataAdapter<MusicDB, RecyclerView.ViewHolder>(M
     }
 
     companion object {
-        private val MUSIC_COMPARISON = object : DiffUtil.ItemCallback<MusicDB>() {
-            override fun areItemsTheSame(oldItem: MusicDB, newItem: MusicDB): Boolean {
+        private val MUSIC_COMPARISON = object : DiffUtil.ItemCallback<AudioModel>() {
+            override fun areItemsTheSame(oldItem: AudioModel, newItem: AudioModel): Boolean {
                 return oldItem.musicId == newItem.musicId
             }
 
-            override fun areContentsTheSame(oldItem: MusicDB, newItem: MusicDB): Boolean {
+            override fun areContentsTheSame(oldItem: AudioModel, newItem: AudioModel): Boolean {
                 return oldItem == newItem
             }
 

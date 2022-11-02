@@ -1,4 +1,4 @@
-package com.lis.audio_player.domain.models
+package com.lis.audio_player.domain.networkModels
 
 import com.google.gson.annotations.SerializedName
 

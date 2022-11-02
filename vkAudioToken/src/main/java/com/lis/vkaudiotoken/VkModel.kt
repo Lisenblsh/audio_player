@@ -4,7 +4,9 @@ import com.google.gson.annotations.SerializedName
 
 internal data class TokenModel(
     @SerializedName("access_token")
-    val accessToken: String
+    val accessToken: String,
+    @SerializedName("user_id")
+    val userId: Long,
 )
 
 internal data class TokenErrorModel(

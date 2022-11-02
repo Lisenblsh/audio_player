@@ -10,9 +10,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.lis.audio_player.R
 import com.lis.audio_player.data.room.AlbumDB
+import com.lis.audio_player.domain.baseModels.AlbumModel
 import com.lis.audio_player.domain.tools.ImageLoader
 
-class AlbumPagingAdapter: PagingDataAdapter<AlbumDB, RecyclerView.ViewHolder>(ALBUM_COMPARISON) {
+class AlbumPagingAdapter: PagingDataAdapter<AlbumModel, RecyclerView.ViewHolder>(ALBUM_COMPARISON) {
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val album = getItem(position)
@@ -41,9 +42,9 @@ class AlbumPagingAdapter: PagingDataAdapter<AlbumDB, RecyclerView.ViewHolder>(AL
         private val title = itemView.findViewById<TextView>(R.id.album_title)
         private val albumAuthor = itemView.findViewById<TextView>(R.id.album_author)
 
-        private var album: AlbumDB? = null
+        private var album: AlbumModel? = null
 
-        fun bind(album: AlbumDB?) {
+        fun bind(album: AlbumModel?) {
             if(album == null){
 
             } else {
@@ -51,10 +52,11 @@ class AlbumPagingAdapter: PagingDataAdapter<AlbumDB, RecyclerView.ViewHolder>(AL
             }
         }
 
-        private fun showRepoData(album: AlbumDB) {
+        private fun showRepoData(album: AlbumModel) {
             this.album = album
 
             title.text = album.title
+            albumAuthor.text = album.mainArtist?.joinToString(","){it.name} ?: ""
             ImageLoader().setImage(album.photo600.ifBlank{R.drawable.base_song_image}, image)
             itemView.setOnClickListener{
                 val id = album.albumId
@@ -69,12 +71,12 @@ class AlbumPagingAdapter: PagingDataAdapter<AlbumDB, RecyclerView.ViewHolder>(AL
     }
 
     companion object {
-        private val ALBUM_COMPARISON = object: DiffUtil.ItemCallback<AlbumDB>() {
-            override fun areItemsTheSame(oldItem: AlbumDB, newItem: AlbumDB): Boolean {
+        private val ALBUM_COMPARISON = object: DiffUtil.ItemCallback<AlbumModel>() {
+            override fun areItemsTheSame(oldItem: AlbumModel, newItem: AlbumModel): Boolean {
                 return oldItem.albumId == newItem.albumId
             }
 
-            override fun areContentsTheSame(oldItem: AlbumDB, newItem: AlbumDB): Boolean {
+            override fun areContentsTheSame(oldItem: AlbumModel, newItem: AlbumModel): Boolean {
                 return oldItem == newItem
             }
 

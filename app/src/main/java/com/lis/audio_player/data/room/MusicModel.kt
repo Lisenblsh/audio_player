@@ -75,14 +75,15 @@ data class AlbumDB(
     val isFollowing: Boolean,
     val isExplicit: Boolean,
     val photo300: String,
-    val photo600: String
+    val photo600: String,
 )
 
 @Entity
 data class ArtistDB(
     @PrimaryKey
     val id: String = "",
-    val musicId: Long,
+    val musicId: Long?,
+    val albumId: Long?,
     val name: String,
     val domain: String
 )
@@ -94,7 +95,15 @@ enum class ArtistType {
 data class MusicArtists(
     @Embedded
     val musicDB: MusicDB,
-    @Relation(parentColumn = "id", entityColumn = "id")
+    @Relation(parentColumn = "musicId", entityColumn = "musicId")
+    val artists: List<ArtistDB>,
+    val type: ArtistType
+)
+
+data class AlbumArtist(
+    @Embedded
+    val artistDB: ArtistDB,
+    @Relation(parentColumn = "albumId", entityColumn = "albumId")
     val artists: List<ArtistDB>,
     val type: ArtistType
 )
