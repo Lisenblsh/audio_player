@@ -1,8 +1,8 @@
 package com.lis.audio_player.data.network.retrofit
 
-import com.lis.audio_player.domain.networkModels.VkMusic
 import com.lis.audio_player.data.network.Filters
 import com.lis.audio_player.domain.networkModels.VkAlbum
+import com.lis.audio_player.domain.networkModels.VkMusic
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Request

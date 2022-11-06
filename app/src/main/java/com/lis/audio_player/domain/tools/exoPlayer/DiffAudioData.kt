@@ -1,9 +1,6 @@
 package com.lis.audio_player.domain.tools.exoPlayer
 
-import android.content.Context
-import android.graphics.BitmapFactory
 import android.net.Uri
-import android.util.Log
 import com.github.difflib.DiffUtils
 import com.github.difflib.patch.AbstractDelta
 import com.github.difflib.patch.DeltaType
@@ -12,10 +9,7 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.MediaMetadata
 import com.lis.audio_player.data.room.MusicDB
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.InputStream
-import java.net.URL
 import kotlin.coroutines.CoroutineContext
 
 class DiffAudioData(private val context: CoroutineContext, private val player: ExoPlayer) :

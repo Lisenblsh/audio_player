@@ -1,8 +1,8 @@
 package com.lis.audio_player.domain.tools
 
 import com.lis.audio_player.domain.baseModels.*
-import com.lis.audio_player.domain.networkModels.MusicItem
 import com.lis.audio_player.domain.networkModels.AlbumItem
+import com.lis.audio_player.domain.networkModels.MusicItem
 
 fun List<MusicItem>.convertToMusicModel(): List<AudioModel> {
     return this.map { musicItem ->

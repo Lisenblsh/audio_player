@@ -20,9 +20,6 @@ class AlbumListViewModel(
     }
 
     private fun getAlbumList(): Flow<PagingData<AlbumModel>> {
-        val pagingSourceFactory = {database.musicDao().getPagingAlbumList()}
-
-        //@OptIn(ExperimentalPagingApi::class)
         return Pager(
             config = PagingConfig(
                 pageSize = PAGE_SIZE,

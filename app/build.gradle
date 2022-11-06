@@ -1,12 +1,18 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'androidx.navigation.safeargs'
+    id 'kotlin-android'
     id 'com.google.devtools.ksp'
     id "org.jetbrains.kotlin.kapt"
 
 }
 
 android {
+    signingConfigs {
+        release {
+        }
+    }
     compileSdk 32
 
     defaultConfig {
@@ -94,5 +100,11 @@ dependencies {
     def diffUtils_version = "4.11"
     implementation "io.github.java-diff-utils:java-diff-utils:$diffUtils_version"
 
+    //Navigation
+    def nav_version = "2.5.1"
+    implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
+    implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
 
+    def flex_version = "3.0.0"
+    implementation "com.google.android.flexbox:flexbox:$flex_version"
 }

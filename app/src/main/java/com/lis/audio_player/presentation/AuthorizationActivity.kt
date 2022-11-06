@@ -2,10 +2,10 @@ package com.lis.audio_player.presentation
 
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.lis.audio_player.R
 import com.lis.audio_player.databinding.ActivityAuthorizationBinding

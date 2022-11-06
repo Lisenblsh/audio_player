@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 
 class MusicListViewModel(
     private val repository: MusicRepositoryImpl,
-    private val database: MusicDatabase
+    private val database: MusicDatabase,
 ) : ViewModel() {
     val pagingMusicList: Flow<PagingData<AudioModel>>
 

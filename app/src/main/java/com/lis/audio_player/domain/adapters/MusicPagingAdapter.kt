@@ -9,7 +9,6 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.lis.audio_player.R
-import com.lis.audio_player.data.room.MusicDB
 import com.lis.audio_player.domain.baseModels.AudioModel
 import com.lis.audio_player.domain.tools.ImageLoader
 
@@ -44,10 +43,6 @@ class MusicPagingAdapter : PagingDataAdapter<AudioModel, RecyclerView.ViewHolder
         private val menu = itemView.findViewById<ImageView>(R.id.music_menu)
 
         private var music: AudioModel? = null
-
-        init {
-
-        }
 
         fun bind(music: AudioModel?) {
             if(music == null){

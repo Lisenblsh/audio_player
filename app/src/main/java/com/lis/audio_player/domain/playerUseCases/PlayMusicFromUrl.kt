@@ -3,10 +3,8 @@ package com.lis.audio_player.domain.playerUseCases
 import android.content.Context
 import android.content.Intent
 import android.media.session.PlaybackState
-import android.net.Uri
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,7 +15,6 @@ import com.lis.audio_player.data.room.MusicDB
 import com.lis.audio_player.domain.tools.exoPlayer.DiffAudioData
 import com.lis.audio_player.domain.tools.exoPlayer.currentMediaItems
 import com.lis.audio_player.presentation.service.PlayerService
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class PlayMusicFromUrl(
@@ -63,7 +60,7 @@ class PlayMusicFromUrl(
             }
         })
         viewModelScope.launch {
-            audiosList = (getMusicList() ?: emptyList()) as ArrayList<MusicDB>
+            audiosList = getMusicList() as ArrayList<MusicDB>
             differ.add(audiosList)
             isPlaylistAdd.value = true
             exoPlayer.prepare()
@@ -73,9 +70,7 @@ class PlayMusicFromUrl(
     fun setupMusicFromId(musicId: Long) {
         for (i in exoPlayer.currentMediaItems.indices) {
             val media = exoPlayer.getMediaItemAt(i)
-            Log.e("mediaId", "${media.mediaId}:$musicId")
             if (media.mediaId == musicId.toString()) {
-                Log.e("mediaId True", "${media.mediaId}:$musicId")
                 exoPlayer.seekTo(i, 0)
                 break
             }
@@ -109,10 +104,6 @@ class PlayMusicFromUrl(
         if(isPlaying.value==false){
             position.value = 0
         }
-    }
-
-    fun destroy() {
-        exoPlayer.release()
     }
 
     private val updateSongTime: Runnable = object : Runnable {

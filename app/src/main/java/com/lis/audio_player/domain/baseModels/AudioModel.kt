@@ -1,11 +1,9 @@
 package com.lis.audio_player.domain.baseModels
 
-import com.lis.audio_player.domain.networkModels.MainArtist
-
 data class AudioModel(
     val musicId: Long,
-    val ownerId: Long, //ownerID+musicid
-    val contentIs: String,
+    val ownerId: Long,
+    val contentIs: String, //ownerId+musicId
     val artist: String,
     val title: String,
     val url: String,
