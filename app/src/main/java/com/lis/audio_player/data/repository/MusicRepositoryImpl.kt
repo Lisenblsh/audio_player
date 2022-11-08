@@ -13,28 +13,13 @@ class MusicRepositoryImpl(
     private val userId: Long
 ) : MusicRepository {
     override suspend fun getMusicList(
-        count: Int,
-        offset: Int,
-        ownerId: Long?,
-        albumId: Long?,
-        accessKey: String?
-    ) = service.getAudio(token, count, offset, ownerId, albumId, accessKey)
+        count: Int, offset: Int, ownerId: Long?, albumId: Long?, accessKey: String?
+    ) = service.getAudio(token, count, offset, ownerId ?: userId, albumId, accessKey)
 
     override suspend fun getAlbumList(
-        ownerId: Long?,
-        count: Int,
-        offset: Int,
-        extended: Int?,
-        fields: String?,
-        filters: Filters?
+        ownerId: Long?, count: Int, offset: Int, extended: Int?, fields: String?, filters: Filters?
     ) = service.getPlaylistsAudio(
-        token,
-        ownerId ?: userId,
-        count,
-        offset,
-        extended,
-        fields,
-        filters
+        token, ownerId ?: userId, count, offset, extended, fields, filters
     )
 
     override suspend fun getMusicListFromDB(): List<MusicDB> {

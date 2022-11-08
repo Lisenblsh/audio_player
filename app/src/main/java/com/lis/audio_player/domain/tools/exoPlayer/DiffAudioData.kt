@@ -9,13 +9,14 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.MediaMetadata
 import com.lis.audio_player.data.room.MusicDB
+import com.lis.audio_player.domain.baseModels.AudioModel
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
 class DiffAudioData(private val context: CoroutineContext, private val player: ExoPlayer) :
     AudioDataUpdaterDiff {
 
-    override suspend fun update(incoming: List<MusicDB>) {
+    override suspend fun update(incoming: List<AudioModel>) {
         val oldData = player.currentMediaItems
         val newData = incoming.toMediaItems()
 
@@ -41,7 +42,7 @@ class DiffAudioData(private val context: CoroutineContext, private val player: E
         }
     }
 
-    override suspend fun add(incoming: List<MusicDB>) {
+    override suspend fun add(incoming: List<AudioModel>) {
         player.addMediaItems(incoming.toMediaItems())
     }
 
@@ -53,7 +54,7 @@ class DiffAudioData(private val context: CoroutineContext, private val player: E
         player.addMediaItems(target.position, target.lines)
     }
 
-    private fun List<MusicDB>.toMediaItems(): List<MediaItem> =
+    private fun List<AudioModel>.toMediaItems(): List<MediaItem> =
         map { data ->
             val mediaMetadata = MediaMetadata.Builder()
                 .setArtist(data.artist)

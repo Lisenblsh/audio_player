@@ -214,6 +214,8 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/music_list"
+            android:elevation="100dp"
+            android:background="?attr/colorOnPrimary"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone" />

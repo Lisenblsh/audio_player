@@ -7,13 +7,19 @@ import android.content.ServiceConnection
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
 import android.os.IBinder
+import android.view.View
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.PagingData
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.lis.audio_player.R
 import com.lis.audio_player.databinding.ActivityPlayerBinding
+import com.lis.audio_player.domain.adapters.MusicPagingAdapter
 import com.lis.audio_player.domain.playerUseCases.PlayMusicFromUrl
 import com.lis.audio_player.domain.tools.ImageLoader
 import com.lis.audio_player.presentation.service.PlayerService
@@ -29,17 +35,19 @@ class PlayerActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityPlayerBinding
 
-    private val playMusicFromUrl: PlayMusicFromUrl by inject{ parametersOf(exoPlayer)}
+    private val playMusicFromUrl: PlayMusicFromUrl by inject { parametersOf(exoPlayer) }
 
     private var musicId: Long = -1
 
     private lateinit var exoPlayer: ExoPlayer
 
+    private val musicAdapter = MusicPagingAdapter()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPlayerBinding.inflate(layoutInflater)
-        setContentView(binding.root)
         bindToService()
+        setContentView(binding.root)
 
     }
 
@@ -72,13 +80,16 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun ActivityPlayerBinding.bindElements() {
+        setMusicList()
         val imageLoader = ImageLoader()
         playMusicFromUrl.musicInfo.observe(this@PlayerActivity) { music ->
-            imageLoader.setImage(music.photo1200, songImage)
-            imageLoader.setImageOnBackground(music.photo1200, backgroundImage)
-            songName.isSelected = true
-            songName.text = music.title
-            songAuthor.text = music.artist
+            if (music != null) {
+                imageLoader.setImage(music.photo1200, songImage)
+                imageLoader.setImageOnBackground(music.photo1200, backgroundImage)
+                songName.isSelected = true
+                songName.text = music.title
+                songAuthor.text = music.artist
+            }
 
         }
 
@@ -98,8 +109,10 @@ class PlayerActivity : AppCompatActivity() {
             if (it) {
                 lifecycleScope.launch {
                     playMusicFromUrl.setupMusicFromId(musicId)
+                    musicAdapter.submitData(PagingData.from(playMusicFromUrl.audiosList))
                 }
             }
+
         }
 
         playMusicFromUrl.repeatMode.observe(this@PlayerActivity) { repeatMode: Int ->
@@ -139,9 +152,22 @@ class PlayerActivity : AppCompatActivity() {
         buttonPrevious.setOnClickListener { prevClickListener() }
         buttonLoop.setOnClickListener { loopClickListener() }
         buttonShuffle.setOnClickListener { shuffleClickListener() }
+        buttonPlaylist.setOnClickListener { playListClickListener() }
 
         songProgress.setOnSeekBarChangeListener(seekBarSelectProgressListener())
 
+    }
+
+    private fun playListClickListener() {
+        binding.musicList.visibility = View.VISIBLE
+    }
+
+    override fun onBackPressed() {
+        if (binding.musicList.isVisible) {
+            binding.musicList.visibility = View.GONE
+        } else {
+            super.onBackPressed()
+        }
     }
 
     private fun startClickListener() {
@@ -185,6 +211,35 @@ class PlayerActivity : AppCompatActivity() {
     private fun shuffleClickListener() {
         val isShuffle = playMusicFromUrl.shuffleMode.value == true
         playMusicFromUrl.setShuffleMode(!isShuffle)
+    }
+
+    private fun ActivityPlayerBinding.setMusicList() {
+
+        musicList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (!recyclerView.canScrollVertically(1)) {
+                    lifecycleScope.launch {
+                        playMusicFromUrl.addingAudioToPlayer()
+                        musicAdapter.submitData(PagingData.from(playMusicFromUrl.audiosList))
+                    }
+
+                }
+            }
+        })
+
+        musicAdapter.setOnClickListener(object : MusicPagingAdapter.OnClickListener {
+            override fun onMenuClick(id: Long) {
+                //TODO("Not yet implemented")
+            }
+
+            override fun onItemClick(id: Long) {
+            }
+        })
+
+        musicList.adapter = musicAdapter
+        musicList.layoutManager =
+            LinearLayoutManager(this@PlayerActivity, RecyclerView.VERTICAL, false)
     }
 
     private fun getStringSongDuration(songDuration: Long): String {
