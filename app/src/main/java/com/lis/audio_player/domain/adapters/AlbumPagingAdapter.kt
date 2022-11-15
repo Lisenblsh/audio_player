@@ -12,7 +12,8 @@ import com.lis.audio_player.R
 import com.lis.audio_player.domain.baseModels.AlbumModel
 import com.lis.audio_player.domain.tools.ImageLoader
 
-class AlbumPagingAdapter: PagingDataAdapter<AlbumModel, RecyclerView.ViewHolder>(ALBUM_COMPARISON) {
+class AlbumPagingAdapter :
+    PagingDataAdapter<AlbumModel, RecyclerView.ViewHolder>(ALBUM_COMPARISON) {
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val album = getItem(position)
@@ -25,8 +26,8 @@ class AlbumPagingAdapter: PagingDataAdapter<AlbumModel, RecyclerView.ViewHolder>
         return AlbumViewHolder(view)
     }
 
-    interface OnClickListener{
-        fun onItemClick(id: Long)
+    interface OnClickListener {
+        fun onItemClick(albumId: Long, accessKey: String)
     }
 
     private lateinit var clickListener: OnClickListener
@@ -35,7 +36,7 @@ class AlbumPagingAdapter: PagingDataAdapter<AlbumModel, RecyclerView.ViewHolder>
         this.clickListener = listener
     }
 
-    inner class AlbumViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+    inner class AlbumViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         private val image = itemView.findViewById<ImageView>(R.id.album_image)
         private val title = itemView.findViewById<TextView>(R.id.album_title)
@@ -44,7 +45,7 @@ class AlbumPagingAdapter: PagingDataAdapter<AlbumModel, RecyclerView.ViewHolder>
         private var album: AlbumModel? = null
 
         fun bind(album: AlbumModel?) {
-            if(album == null){
+            if (album == null) {
 
             } else {
                 showRepoData(album)
@@ -55,11 +56,12 @@ class AlbumPagingAdapter: PagingDataAdapter<AlbumModel, RecyclerView.ViewHolder>
             this.album = album
 
             title.text = album.title
-            albumAuthor.text = album.mainArtist?.joinToString(","){it.name} ?: ""
-            ImageLoader().setImage(album.photo600.ifBlank{R.drawable.base_song_image}, image)
-            itemView.setOnClickListener{
-                val id = album.albumId
-                clickListener.onItemClick(id)
+            albumAuthor.text = album.mainArtist?.joinToString(",") { it.name } ?: ""
+            ImageLoader().setImage(album.photo600.ifBlank { R.drawable.base_song_image }, image)
+            itemView.setOnClickListener {
+                val albumId = album.albumId
+                val accessKey = album.accessKey
+                clickListener.onItemClick(albumId, accessKey)
             }
         }
 
@@ -70,7 +72,7 @@ class AlbumPagingAdapter: PagingDataAdapter<AlbumModel, RecyclerView.ViewHolder>
     }
 
     companion object {
-        private val ALBUM_COMPARISON = object: DiffUtil.ItemCallback<AlbumModel>() {
+        private val ALBUM_COMPARISON = object : DiffUtil.ItemCallback<AlbumModel>() {
             override fun areItemsTheSame(oldItem: AlbumModel, newItem: AlbumModel): Boolean {
                 return oldItem.albumId == newItem.albumId
             }

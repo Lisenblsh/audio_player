@@ -9,7 +9,12 @@ import com.lis.audio_player.domain.tools.convertToMusicModel
 import retrofit2.HttpException
 import retrofit2.Response
 
-class MusicPagingSource(private val repository: MusicRepositoryImpl) :
+class MusicPagingSource(
+    private val repository: MusicRepositoryImpl,
+    private val ownerId: Long? = null,
+    private val albumId: Long? = null,
+    private val accessKey: String? = null
+) :
     PagingSource<Int, AudioModel>() {
     override fun getRefreshKey(state: PagingState<Int, AudioModel>): Int? {
         val anchorPosition = state.anchorPosition ?: return null
@@ -19,11 +24,14 @@ class MusicPagingSource(private val repository: MusicRepositoryImpl) :
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, AudioModel> {
         val page = params.key ?: 1
-        val pageSize = params.loadSize.coerceAtMost(10)
+        val pageSize = params.loadSize
 
         val response = getMusicList(
             count = pageSize,
-            offset = pageSize * (page - 1)
+            offset = pageSize * (page - 1),
+            ownerId = ownerId,
+            albumId = albumId,
+            accessKey = accessKey
         )
 
         return if (response.isSuccessful) {

@@ -19,6 +19,7 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.lis.audio_player.R
 import com.lis.audio_player.databinding.ActivityPlayerBinding
+import com.lis.audio_player.domain.adapters.MusicAdapter
 import com.lis.audio_player.domain.adapters.MusicPagingAdapter
 import com.lis.audio_player.domain.playerUseCases.PlayMusicFromUrl
 import com.lis.audio_player.domain.tools.ImageLoader
@@ -41,7 +42,7 @@ class PlayerActivity : AppCompatActivity() {
 
     private lateinit var exoPlayer: ExoPlayer
 
-    private val musicAdapter = MusicPagingAdapter()
+    private val musicAdapter = MusicAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -109,7 +110,7 @@ class PlayerActivity : AppCompatActivity() {
             if (it) {
                 lifecycleScope.launch {
                     playMusicFromUrl.setupMusicFromId(musicId)
-                    musicAdapter.submitData(PagingData.from(playMusicFromUrl.audiosList))
+                    musicAdapter.submitList(playMusicFromUrl.audiosList)
                 }
             }
 
@@ -220,15 +221,15 @@ class PlayerActivity : AppCompatActivity() {
                 super.onScrollStateChanged(recyclerView, newState)
                 if (!recyclerView.canScrollVertically(1)) {
                     lifecycleScope.launch {
-                        playMusicFromUrl.addingAudioToPlayer()
-                        musicAdapter.submitData(PagingData.from(playMusicFromUrl.audiosList))
-                    }
+                        playMusicFromUrl.updateAudioToPlayer()
+                        musicAdapter.submitList(playMusicFromUrl.audiosList)
+                     }
 
                 }
             }
         })
 
-        musicAdapter.setOnClickListener(object : MusicPagingAdapter.OnClickListener {
+        musicAdapter.setOnClickListener(object : MusicAdapter.OnClickListener {
             override fun onMenuClick(id: Long) {
                 //TODO("Not yet implemented")
             }

@@ -78,12 +78,23 @@ class PlayMusicFromUrl(
         }
     }
 
-    suspend fun addingAudioToPlayer() {
+    private suspend fun addingAudioToPlayer() {
         audiosList = getMusicList(
             count = PAGE_SIZE,
             offset = PAGE_SIZE * (page - 1)
         ) as ArrayList<AudioModel>
         differ.add(audiosList)
+        isPlaylistAdd.value = true
+    }
+
+    suspend fun updateAudioToPlayer() {
+        Log.e("update","${audiosList.size}")
+        audiosList.addAll(getMusicList(
+            count = PAGE_SIZE,
+            offset = PAGE_SIZE * (page - 1)
+        ))
+        Log.e("update","${audiosList.size}")
+        differ.update(audiosList)
         isPlaylistAdd.value = true
     }
 
@@ -144,7 +155,7 @@ class PlayMusicFromUrl(
         }
     }
 
-    private suspend fun getMusicList(
+    private suspend fun  getMusicList(
         count: Int = PAGE_SIZE,
         offset: Int,
         ownerId: Long? = null,

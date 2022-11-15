@@ -13,10 +13,28 @@
         <action
             android:id="@+id/action_mainFragment_to_albumFragment"
             app:destination="@id/albumFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_audioFragment"
+            app:destination="@id/audioFragment" />
     </fragment>
     <fragment
         android:id="@+id/albumFragment"
         android:name="com.lis.audio_player.presentation.AlbumFragment"
         android:label="fragment_album"
         tools:layout="@layout/fragment_album" />
+    <fragment
+        android:id="@+id/audioFragment"
+        android:name="com.lis.audio_player.presentation.AudioFragment"
+        android:label="fragment_audio"
+        tools:layout="@layout/fragment_audio" >
+        <argument
+            android:name="owner_id"
+            app:argType="long" />
+        <argument
+            android:name="album_id"
+            app:argType="long" />
+        <argument
+            android:name="access_key"
+            app:argType="string" />
+    </fragment>
 </navigation>

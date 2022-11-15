@@ -6,10 +6,16 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val appModule = module {
-    viewModel<MusicListViewModel>{
-        MusicListViewModel(repository = get(), database = get())
+    viewModel<MusicListViewModel> { (ownerId: Long?,albumId: Long?,accessKey: String?)->
+        MusicListViewModel(
+            repository = get(),
+            database = get(),
+            ownerId = ownerId,
+            albumId = albumId,
+            accessKey = accessKey,
+        )
     }
-    viewModel<AlbumListViewModel>{
+    viewModel<AlbumListViewModel> {
         AlbumListViewModel(repository = get(), database = get())
     }
 }

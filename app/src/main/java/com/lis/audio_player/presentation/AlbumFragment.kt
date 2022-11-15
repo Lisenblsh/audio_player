@@ -7,6 +7,10 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.NavHostFragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.exoplayer2.MediaItem
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
@@ -17,13 +21,19 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class AlbumFragment : Fragment() {
+class AlbumFragment() : Fragment() {
 
     private lateinit var binding: FragmentAlbumBinding
 
     private val albumViewModel by viewModel<AlbumListViewModel>()
 
     private val albumAdapter = AlbumPagingAdapter()
+
+    private var albumFragmentType = FULL
+
+    constructor(@AlbumFragmentType albumFragmentType: Int) : this() {
+        this.albumFragmentType = albumFragmentType
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,19 +46,32 @@ class AlbumFragment : Fragment() {
 
     private fun FragmentAlbumBinding.viewAlbumList() {
         albumAdapter.setOnClickListener(object : AlbumPagingAdapter.OnClickListener {
-            override fun onItemClick(id: Long) {
-                Toast.makeText(requireContext(), id.toString(), Toast.LENGTH_SHORT).show()
+            override fun onItemClick(albumId: Long, accessKey: String) {
+                val directions = MainFragmentDirections.actionMainFragmentToAudioFragment(0,albumId, accessKey)
+                NavHostFragment.findNavController(this@AlbumFragment).navigate(directions)
             }
-
         })
 
         albumList.adapter = albumAdapter
-        albumList.layoutManager =
+        val layoutManager = if(albumFragmentType == FULL){
             FlexboxLayoutManager(requireContext(), FlexDirection.ROW).apply {
                 justifyContent = JustifyContent.CENTER }
+        } else {
+            LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
+        }
+        albumList.layoutManager = layoutManager
 
         lifecycleScope.launch {
             albumViewModel.pagingAlbumList.collectLatest(albumAdapter::submitData)
         }
     }
+
+    companion object {
+
+    }
+
 }
+
+annotation class AlbumFragmentType
+var FULL = 0
+var SMALL = 1

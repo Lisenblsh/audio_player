@@ -13,6 +13,9 @@ import kotlinx.coroutines.flow.Flow
 class MusicListViewModel(
     private val repository: MusicRepositoryImpl,
     private val database: MusicDatabase,
+    private val ownerId: Long? = null,
+    private val albumId: Long? = null,
+    private val accessKey: String? = null
 ) : ViewModel() {
     val pagingMusicList: Flow<PagingData<AudioModel>>
 
@@ -21,23 +24,24 @@ class MusicListViewModel(
     }
 
     private fun getMusicList(): Flow<PagingData<AudioModel>> {
-//        val pagingSourceFactory = { database.musicDao().getPagingMusicList() }
-//
-//        @OptIn(ExperimentalPagingApi::class)
         return Pager(
             config = PagingConfig(
                 pageSize = PAGE_SIZE,
                 enablePlaceholders = true,
-                initialLoadSize = INITIAL_SIZE
+                initialLoadSize = PAGE_SIZE
             )
-        ){
-            MusicPagingSource(repository)
+        ) {
+            MusicPagingSource(
+                repository = repository,
+                ownerId = ownerId,
+                albumId = albumId,
+                accessKey = accessKey
+            )
         }.flow
     }
 
     companion object {
         const val PAGE_SIZE = 20
-        const val INITIAL_SIZE = 2
     }
 
 }

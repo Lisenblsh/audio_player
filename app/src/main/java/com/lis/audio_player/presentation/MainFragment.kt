@@ -28,6 +28,7 @@ class MainFragment : Fragment() {
 
     private fun FragmentMainBinding.setTabs() {
         val fragmentList = arrayListOf(
+            HomeFragment(),
             UserAudioFragment(),
             SettingsFragment()
         )
@@ -36,10 +37,13 @@ class MainFragment : Fragment() {
         viewpagerMain.isUserInputEnabled = false
         TabLayoutMediator(tablayoutMain, viewpagerMain) { tab, position ->
             when(position){
-                0-> {
+                0->{
                     tab.setIcon(R.drawable.main_tab_icon)
                 }
                 1-> {
+                    tab.setIcon(R.drawable.user_music_tab_icon)
+                }
+                2-> {
                     tab.setIcon(R.drawable.settings_tab_icon)
                 }
             }
