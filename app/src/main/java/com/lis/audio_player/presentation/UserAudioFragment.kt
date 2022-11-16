@@ -32,17 +32,16 @@ class UserAudioFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
-        binding = FragmentUserAudioBinding.inflate(layoutInflater, container, false)
-        //binding.viewMusicList()
-        binding.viewMusicFragment()
-        binding.viewAlbumFragment()
-        //binding.viewAlbumList()
-        binding.bindButtons()
+        if(!this::binding.isInitialized){
+            binding = FragmentUserAudioBinding.inflate(layoutInflater, container, false)
+            viewMusicFragment()
+            viewAlbumFragment()
+            binding.bindButtons()
+        }
         return binding.root
     }
 
-    private fun FragmentUserAudioBinding.viewMusicFragment() {
+    private fun viewMusicFragment() {
         val audioFragment: Fragment = AudioFragment()
         val transaction: FragmentTransaction = childFragmentManager.beginTransaction()
         transaction.replace(R.id.music_fragment,audioFragment).commit()
@@ -50,28 +49,12 @@ class UserAudioFragment : Fragment() {
 
     }
 
-    private fun FragmentUserAudioBinding.viewAlbumFragment() {
+    private fun viewAlbumFragment() {
         val albumFragment: Fragment = AlbumFragment(SMALL)
         val transaction: FragmentTransaction = childFragmentManager.beginTransaction()
         transaction.replace(R.id.album_fragment,albumFragment).commit()
     }
 
-    private fun FragmentUserAudioBinding.viewAlbumList() {
-        albumAdapter.setOnClickListener(object : AlbumPagingAdapter.OnClickListener {
-            override fun onItemClick(albumId: Long, accessKey: String) {
-                Toast.makeText(requireContext(), albumId.toString(), Toast.LENGTH_SHORT).show()
-            }
-
-        })
-
-//        albumList.adapter = albumAdapter
-//        albumList.layoutManager =
-//            LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
-
-        lifecycleScope.launch {
-            albumViewModel.pagingAlbumList.collectLatest(albumAdapter::submitData)
-        }
-    }
     private fun FragmentUserAudioBinding.bindButtons() {
         showAllAlbum.setOnClickListener {
             val directions = MainFragmentDirections.actionMainFragmentToAlbumFragment()

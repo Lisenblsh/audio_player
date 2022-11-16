@@ -21,7 +21,11 @@
         android:id="@+id/albumFragment"
         android:name="com.lis.audio_player.presentation.AlbumFragment"
         android:label="fragment_album"
-        tools:layout="@layout/fragment_album" />
+        tools:layout="@layout/fragment_album" >
+        <action
+            android:id="@+id/action_albumFragment_to_audioFragment"
+            app:destination="@id/audioFragment" />
+    </fragment>
     <fragment
         android:id="@+id/audioFragment"
         android:name="com.lis.audio_player.presentation.AudioFragment"
@@ -29,12 +33,15 @@
         tools:layout="@layout/fragment_audio" >
         <argument
             android:name="owner_id"
-            app:argType="long" />
+            app:argType="long"
+            android:defaultValue="0L"/>
         <argument
             android:name="album_id"
-            app:argType="long" />
+            app:argType="long"
+            android:defaultValue="0L"/>
         <argument
             android:name="access_key"
-            app:argType="string" />
+            app:argType="string"
+            android:defaultValue=""/>
     </fragment>
 </navigation>

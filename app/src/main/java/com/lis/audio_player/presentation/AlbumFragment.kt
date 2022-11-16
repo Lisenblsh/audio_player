@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavArgs
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -20,6 +21,7 @@ import com.lis.audio_player.presentation.viewModels.AlbumListViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.io.IOException
 
 class AlbumFragment() : Fragment() {
 
@@ -47,15 +49,33 @@ class AlbumFragment() : Fragment() {
     private fun FragmentAlbumBinding.viewAlbumList() {
         albumAdapter.setOnClickListener(object : AlbumPagingAdapter.OnClickListener {
             override fun onItemClick(albumId: Long, accessKey: String) {
-                val directions = MainFragmentDirections.actionMainFragmentToAudioFragment(0,albumId, accessKey)
+                val directions = when (albumFragmentType) {
+                    FULL -> {
+                        AlbumFragmentDirections.actionAlbumFragmentToAudioFragment().apply {
+                            this.albumId = albumId
+                            this.accessKey = accessKey
+                        }
+                    }
+                    SMALL -> {
+                        MainFragmentDirections.actionMainFragmentToAudioFragment().apply {
+                            this.albumId = albumId
+                            this.accessKey = accessKey
+                        }
+
+                    }
+                    else -> {
+                        throw IOException("wrong direction")
+                    }
+                }
                 NavHostFragment.findNavController(this@AlbumFragment).navigate(directions)
             }
         })
 
         albumList.adapter = albumAdapter
-        val layoutManager = if(albumFragmentType == FULL){
+        val layoutManager = if (albumFragmentType == FULL) {
             FlexboxLayoutManager(requireContext(), FlexDirection.ROW).apply {
-                justifyContent = JustifyContent.CENTER }
+                justifyContent = JustifyContent.CENTER
+            }
         } else {
             LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
         }
@@ -73,5 +93,6 @@ class AlbumFragment() : Fragment() {
 }
 
 annotation class AlbumFragmentType
+
 var FULL = 0
 var SMALL = 1

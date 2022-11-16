@@ -1,5 +1,6 @@
 package com.lis.audio_player.presentation.viewModels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -24,6 +25,7 @@ class MusicListViewModel(
     }
 
     private fun getMusicList(): Flow<PagingData<AudioModel>> {
+        Log.e("viewModelData", "${this.hashCode()} $ownerId,$albumId, $accessKey")
         return Pager(
             config = PagingConfig(
                 pageSize = PAGE_SIZE,
