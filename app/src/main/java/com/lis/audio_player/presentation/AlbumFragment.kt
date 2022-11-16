@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavArgs
 import androidx.navigation.fragment.NavHostFragment
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.exoplayer2.MediaItem
@@ -16,6 +17,7 @@ import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
 import com.lis.audio_player.databinding.FragmentAlbumBinding
+import com.lis.audio_player.databinding.FragmentAudioBinding
 import com.lis.audio_player.domain.adapters.AlbumPagingAdapter
 import com.lis.audio_player.presentation.viewModels.AlbumListViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -41,9 +43,41 @@ class AlbumFragment() : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentAlbumBinding.inflate(inflater, container, false)
-        binding.viewAlbumList()
+        if (!this::binding.isInitialized) {
+            binding = FragmentAlbumBinding.inflate(inflater, container, false)
+            binding.viewAlbumList()
+            binding.initSwipeRefresh()
+
+        }
         return binding.root
+    }
+
+    private fun FragmentAlbumBinding.initSwipeRefresh() {
+        lifecycleScope.launch {
+            albumAdapter.loadStateFlow.collectLatest { loadState ->
+                if (loadState.refresh is LoadState.NotLoading) {
+                    val position = when (albumFragmentType) {
+                        FULL -> {
+                            (albumList.layoutManager as FlexboxLayoutManager).findFirstVisibleItemPosition()
+                        }
+                        SMALL -> {
+                            (albumList.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                        }
+                        else -> {
+                            throw IOException("wrong type")
+                        }
+                    }
+                    if (position == 0) {
+                        albumList.scrollToPosition(0)
+                    }
+                    refreshLayout.isRefreshing = false
+
+                }
+            }
+        }
+        refreshLayout.setOnRefreshListener {
+            albumAdapter.refresh()
+        }
     }
 
     private fun FragmentAlbumBinding.viewAlbumList() {
@@ -61,10 +95,9 @@ class AlbumFragment() : Fragment() {
                             this.albumId = albumId
                             this.accessKey = accessKey
                         }
-
                     }
                     else -> {
-                        throw IOException("wrong direction")
+                        throw IOException("wrong type")
                     }
                 }
                 NavHostFragment.findNavController(this@AlbumFragment).navigate(directions)
@@ -85,11 +118,6 @@ class AlbumFragment() : Fragment() {
             albumViewModel.pagingAlbumList.collectLatest(albumAdapter::submitData)
         }
     }
-
-    companion object {
-
-    }
-
 }
 
 annotation class AlbumFragmentType

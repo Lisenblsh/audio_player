@@ -5,9 +5,15 @@
     android:layout_height="match_parent"
     tools:context=".presentation.AlbumFragment">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/album_list"
-        android:layout_height="match_parent"
-        android:layout_width="match_parent"/>
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/refresh_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/album_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </FrameLayout>

@@ -10,12 +10,15 @@ import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavArgs
 import androidx.navigation.fragment.navArgs
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lis.audio_player.databinding.FragmentAudioBinding
 import com.lis.audio_player.domain.adapters.MusicPagingAdapter
 import com.lis.audio_player.presentation.PlayerActivity
 import com.lis.audio_player.presentation.viewModels.MusicListViewModel
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -37,7 +40,7 @@ class AudioFragment() : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if(arguments != null){
+        if (arguments != null) {
             val args: AudioFragmentArgs by navArgs()
             Log.e("args", "${args.ownerId} ${args.albumId} ${args.accessKey}")
             ownerId = if (args.ownerId != 0L) args.ownerId else null
@@ -56,11 +59,31 @@ class AudioFragment() : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentAudioBinding.inflate(inflater, container, false)
-
-        binding.viewMusicList()
+        if (!this::binding.isInitialized) {
+            binding = FragmentAudioBinding.inflate(inflater, container, false)
+            binding.viewMusicList()
+            binding.initSwipeRefresh()
+        }
 
         return binding.root
+    }
+
+    private fun FragmentAudioBinding.initSwipeRefresh() {
+        lifecycleScope.launch {
+            musicAdapter.loadStateFlow.collectLatest { loadState ->
+                if (loadState.refresh is LoadState.NotLoading) {
+                    val position =
+                        (musicList.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                    if (position == 0) {
+                        musicList.scrollToPosition(0)
+                    }
+                    refreshLayout.isRefreshing = false
+                }
+            }
+        }
+        refreshLayout.setOnRefreshListener {
+            musicAdapter.refresh()
+        }
     }
 
     private fun FragmentAudioBinding.viewMusicList() {
